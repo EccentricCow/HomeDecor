@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {ProductType} from "../../../../types/product.type";
 import {environment} from "../../../../environments/environment";
 import {CartService} from "../../services/cart.service";
@@ -9,6 +9,7 @@ import {AuthService} from "../../../core/auth/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FavoriteService} from "../../services/favorite.service";
 import {Router} from "@angular/router";
+import {first} from "rxjs";
 
 @Component({
   selector: 'product-card',
@@ -23,11 +24,14 @@ export class ProductCardComponent implements OnInit {
   private favoriteService = inject(FavoriteService);
   private router = inject(Router);
 
-  @Input() product!: ProductType;
   serverStaticPath = environment.serverStaticPath;
 
   @Input() isLight: boolean = false;
   @Input() countInCart: number | undefined = 0;
+  @Input() isFavorite: boolean = false;
+  @Input() isFirstFavorite: boolean = false;
+  @Input() product!: ProductType | FavoriteType;
+  @Output() removeFromFavorites: EventEmitter<string> = new EventEmitter<string>();
 
   count: number = 1;
 
@@ -77,7 +81,7 @@ export class ProductCardComponent implements OnInit {
       return;
     }
 
-    if (this.product.isInFavorite) {
+    if ((this.product as ProductType).isInFavorite) {
       this.favoriteService.removeFromFavorites(this.product.id)
         .subscribe((data: DefaultResponseType) => {
           if (data.error) {
@@ -85,7 +89,7 @@ export class ProductCardComponent implements OnInit {
             throw new Error(data.message);
           }
 
-          this.product.isInFavorite = false;
+          (this.product as ProductType).isInFavorite = false;
         });
     } else {
       this.favoriteService.addFavorite(this.product.id)
@@ -94,7 +98,7 @@ export class ProductCardComponent implements OnInit {
             throw new Error((data as DefaultResponseType).message);
           }
 
-          this.product.isInFavorite = true;
+          (this.product as ProductType).isInFavorite = true;
         });
     }
   }
@@ -104,4 +108,10 @@ export class ProductCardComponent implements OnInit {
       this.router.navigate(['/product/' + this.product.url]);
     }
   }
+
+  onRemoveFromFavorites(id: string): void {
+    this.removeFromFavorites.emit(id);
+  }
+
+  protected readonly first = first;
 }
