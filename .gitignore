@@ -1,0 +1,14 @@
+.DS_Store
+.idea/
+*.log
+
+node_modules/
+*/node_modules/
+
+frontend/dist/
+frontend/.env
+
+backend/venv/
+backend/.env
+*.pyc
+__pycache__/
