@@ -36,9 +36,13 @@ export class ProductCardComponent implements OnInit {
   count: number = 1;
 
   ngOnInit(): void {
-    if (this.countInCart && this.countInCart > 1) {
-      this.count = this.countInCart;
+    if (this.product && this.product.countInCart && this.product.countInCart > 1) {
+      this.count = this.countInCart!;
     }
+    // if (this.countInCart && this.countInCart > 1) {
+    //   this.count = this.countInCart;
+    // }
+    console.log(this.countInCart);
   }
 
   addToCart(): void {
